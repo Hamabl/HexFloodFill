@@ -1,10 +1,11 @@
-int radius = 20;
+int radius = 60;
 int hexcount = 1 + 6*radius*(radius+1)/2;
 HashMap<Hex, Float> hexes;
 HashMap<Hex, Hex> prev;
 HashMap<Hex, Hex> next;
 ArrayList<Hex> open;
 float color_change_randomness = 3;
+int open_list_precedence_index = 3;
 Hex firstHex;
 
 int seed;
@@ -18,7 +19,7 @@ void generate()
     if(open.size() == 0)
     {
       println("ERROR: open list is empty.");
-      return;
+      break;
     }
     
     if(step())
@@ -63,7 +64,7 @@ boolean step()
 {
   //Hex h = open.get(open.size()-1);
   //Hex h = open.size()>1 && random(2)<0? open.get(open.size()-2) : open.get(open.size()-1);
-  Hex h = open.get(int(random(max(0,open.size()-6),open.size()-1)));
+  Hex h = open.get(int(random(max(0,open.size()-open_list_precedence_index),open.size()-1)));
   
   Hex[] candidates = {h.add( next.get(h).sub(h).rotated6(1) ),
                       h.add( next.get(h).sub(h).rotated6(5) )};

@@ -1,4 +1,4 @@
-float hSize = 20;
+float hSize = 10;
 
 PVector vecX = new PVector(0    * hSize, -sqrt(3)/2 * hSize);
 PVector vecY = new PVector(0.75  * hSize, sqrt(3)/4  * hSize);
@@ -13,12 +13,12 @@ color colbg = color(0,0,0);
 float color_change_freq = 1;
 float color_change_phase = 0;
 
-float smoothness_factor = hexcount*0.3;
+float smoothness_factor = hexcount*0.01;
 
 void renderAll()
 {
   background(colbg);
-  translate(512,512);
+  translate(540,540);
   renderHexes();
   renderSmoothness();
 }
@@ -37,14 +37,25 @@ void renderHexes()
 
 void renderSmoothness()
 {
-  Hex h = firstHex;
-  int i_col = 0;
-  for(int k = 0; k<next.size(); k++)
+  for(Hex h : hexes.keySet())
   {
-    Hex h_next = next.get(h);
-    drawSmoothness(h, h_next, colorFromVal(i_col));
-    h = h_next;
-    i_col++;
+    float i_col = hexes.get(h);
+    Hex[] neighbours = h.neighbours();
+    boolean previous_is_similar = hexes.containsKey(neighbours[5]) && abs(hexes.get(neighbours[5]) - i_col)%hexes.size() < smoothness_factor;
+    
+    for(int i=0; i<6; i++)
+    {
+      boolean is_similar = hexes.containsKey(neighbours[i]) && abs(hexes.get(neighbours[i]) - i_col)%hexes.size() < smoothness_factor;
+      if(previous_is_similar && !is_similar)
+      {
+        drawSmoothness(h, neighbours[(i+5)%6], neighbours[i], colorFromVal(i_col));
+      }
+      else if(!previous_is_similar && is_similar)
+      {
+        drawSmoothness(h, neighbours[i], neighbours[(i+5)%6], colorFromVal(i_col));
+      }
+      previous_is_similar = is_similar;
+    }
   }
 }
 
@@ -59,23 +70,22 @@ void drawHex(Hex h, color col)
     vertex(pos.x+(0.5*hSize+0.5)*cos(TWO_PI*i/6), pos.y+(0.5*hSize+0.5)*sin(TWO_PI*i/6));
   }
   endShape(CLOSE);
-  //shape(hexShape, h.x * vecX.x + h.y * vecY.x + h.z * vecZ.x, h.x * vecX.y + h.y * vecY.y + h.z * vecZ.y);
 }
 
-void drawSmoothness(Hex h1, Hex h2, color col)
+void drawSmoothness(Hex h1, Hex h2, Hex hr, color col)
 {
   PVector p1 = getPos(h1);
   PVector p2 = getPos(h2);
-  Hex diff = h2.sub(h1);
-  PVector pr = getPos(h1.add(diff.rotated6(1)));
+  //Hex diff = h2.sub(h1);
+  //PVector pr = getPos(h1.add(diff.rotated6(1)));
+  PVector pr = getPos(hr);
   
   PVector a = new PVector((p1.x + pr.x)/2., (p1.y + pr.y)/2.);
   PVector b = new PVector((p2.x + pr.x)/2., (p2.y + pr.y)/2.);
   PVector c = new PVector((p1.x + p2.x + pr.x)/3., (p1.y + p2.y + pr.y)/3.);
   PVector m = new PVector((p1.x + p2.x)/2., (p1.y + p2.y)/2.);
   
-  println("h:" + h1 + "diffr1:" + getPos(diff.rotated6(1)) + "diffr5" + getPos(diff.rotated6(5)) );
-  //println(a1, "   ", b1, "   ", a2, "   ", b2);
+  //println(a, "   ", b, "   ", c, "   ", m);
   fill(col);
   beginShape();
   noStroke();
@@ -83,8 +93,6 @@ void drawSmoothness(Hex h1, Hex h2, color col)
   quadraticVertex(c.x, c.y, b.x, b.y);
   vertex(m.x, m.y);
   endShape(CLOSE);
-  //stroke(1);
-  //circle(a.x, a.y, 10);
 }
 
   

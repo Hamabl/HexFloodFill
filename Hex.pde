@@ -62,7 +62,6 @@ class Hex
   
   public int getQuadrant()
   {
-    int q = 0;
     if     (x >= y && y >= z)
       return 0;
     else if(y >= x && x >= z)

@@ -1,7 +1,8 @@
 void setup()
 {
-  size(1024,1024);
+  size(1080,1080);
   frameRate(40);
+  smooth(8);
 
   seed = int(random(10000));
   randomSeed(seed);
@@ -35,8 +36,8 @@ void setup()
 
 void draw()
 {
-  //color_change_phase += 0.02;
-  //renderHexes();
+  color_change_phase += 0.02;
+  renderAll();
 }
 
 void keyPressed()
